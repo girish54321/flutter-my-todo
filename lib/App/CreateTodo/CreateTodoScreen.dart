@@ -1,15 +1,10 @@
 import 'dart:io';
-import 'package:animate_do/animate_do.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:reqres_app/App/CreateTodo/CreateTodoScreenUI.dart';
 import 'package:reqres_app/App/FileHelper/imagePicker.dart';
 import 'package:reqres_app/state/userTodoState.dart';
-import 'package:reqres_app/widget/appInputText.dart';
-import 'package:reqres_app/widget/appText.dart';
-import 'package:reqres_app/widget/buttons.dart';
-import 'package:rules/rules.dart';
 
 enum TodoStateEnum {
   pending,
@@ -26,8 +21,6 @@ extension TodoStatExtension on TodoStateEnum {
         return 'completed';
       case TodoStateEnum.inProgress:
         return 'in-progress';
-      default:
-        return "";
     }
   }
 }
@@ -95,6 +88,12 @@ class _CreateTodoScreenState extends State<CreateTodoScreen> {
     }
   }
 
+  void updateSelectedTodo(Set<TodoStateEnum> newSelection) {
+    setState(() {
+      todoStateEnum = newSelection.first;
+    });
+  }
+
   @override
   void initState() {
     autoFill();
@@ -111,146 +110,16 @@ class _CreateTodoScreenState extends State<CreateTodoScreen> {
   @override
   Widget build(BuildContext context) {
     bool isUpdate = widget.isUpdate;
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints viewportConstraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppBar(
-                          actions: [
-                            IconButton(
-                                onPressed: pickImage,
-                                icon: const Icon(Icons.attach_file_sharp))
-                          ],
-                          title: FadeInRight(
-                              duration: const Duration(milliseconds: 500),
-                              child: Text(
-                                  isUpdate ? "Edit Todo" : "Create Todo"))),
-                      Column(
-                        children: [
-                          FadeInRight(
-                            duration: const Duration(milliseconds: 500),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 22),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(
-                                    height: 18,
-                                  ),
-                                  const AppTextH2(
-                                    fontWeight: FontWeight.bold,
-                                    text: "Create Todo",
-                                    textAlign: TextAlign.start,
-                                  ),
-                                  const SizedBox(
-                                    height: 4,
-                                  ),
-                                  const SmallText(
-                                    text: "Create your todo here",
-                                  ),
-                                  InputText(
-                                      textInputType: TextInputType.name,
-                                      textEditingController: titleController,
-                                      password: false,
-                                      hint: "Title",
-                                      validator: (password) {
-                                        final passWordRule = Rule(
-                                          password,
-                                          name: "Title",
-                                          isRequired: true,
-                                        );
-                                        if (passWordRule.hasError) {
-                                          return passWordRule.error;
-                                        } else {
-                                          return null;
-                                        }
-                                      }),
-                                  InputText(
-                                      textEditingController: bodyController,
-                                      password: false,
-                                      hint: "Body",
-                                      validator: (password) {
-                                        final passWordRule = Rule(
-                                          password,
-                                          name: "Body",
-                                          isRequired: true,
-                                        );
-                                        if (passWordRule.hasError) {
-                                          return passWordRule.error;
-                                        } else {
-                                          return null;
-                                        }
-                                      }),
-                                  localFile != null
-                                      ? Image.file(localFile!)
-                                      : const SizedBox(),
-                                  const SizedBox(
-                                    height: 12,
-                                  ),
-                                  SegmentedButton<TodoStateEnum>(
-                                    segments: const <ButtonSegment<
-                                        TodoStateEnum>>[
-                                      ButtonSegment<TodoStateEnum>(
-                                        value: TodoStateEnum.pending,
-                                        label: Text("Pending"),
-                                      ),
-                                      ButtonSegment<TodoStateEnum>(
-                                        value: TodoStateEnum.inProgress,
-                                        label: Text('in Progress'),
-                                      ),
-                                      ButtonSegment<TodoStateEnum>(
-                                        value: TodoStateEnum.completed,
-                                        label: Text('Completed'),
-                                      ),
-                                    ],
-                                    selected: <TodoStateEnum>{todoStateEnum},
-                                    onSelectionChanged:
-                                        (Set<TodoStateEnum> newSelection) {
-                                      setState(() {
-                                        todoStateEnum = newSelection.first;
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(
-                                    height: 18,
-                                  ),
-                                  AppButton(
-                                    function: () {
-                                      createNewTodo();
-                                    },
-                                    child: Center(
-                                      child: Text(
-                                        isUpdate ? "Edit Todo" : "Create",
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Text(""),
-                      const Text("")
-                    ],
-                  ),
-                )),
-          );
-        },
-      ),
+    return CreateTodoScreenUI(
+      formKey: _formKey,
+      titleController: titleController,
+      bodyController: bodyController,
+      isUpdate: isUpdate,
+      localFile: localFile,
+      todoStateEnum: todoStateEnum,
+      pickImage: pickImage,
+      updateSelectedTodo: updateSelectedTodo,
+      createNewTodo: createNewTodo,
     );
   }
 }

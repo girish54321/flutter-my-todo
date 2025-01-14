@@ -9,7 +9,7 @@ import 'util/request_type.dart';
 import 'util/request_type_exception.dart';
 
 class ReqResClient {
-  static const String _baseUrl = "http://192.168.0.116:2000/api/v1";
+  static const String _baseUrl = "$SERVER_URL/api/v1";
   final Client _client;
   GetStorage box = GetStorage();
 
